@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 
 # SimilaritySearcher 인스턴스 생성
 searcher = SimilaritySearcher(
-    '/Users/jeonghuiyun/PycharmProjects/pythonProject2/Resume/embeddingwithcsv/company_embeddings.npy',
-    '/Users/jeonghuiyun/PycharmProjects/pythonProject2/Resume/embeddingwithcsv/faiss_index.index',
-    '/Users/jeonghuiyun/PycharmProjects/pythonProject2/Resume/embeddingwithcsv/university_embeddings.npy',
-    '/Users/jeonghuiyun/PycharmProjects/pythonProject2/Resume/embeddingwithcsv/faiss_index_for_uni.index'
+    'embeddingwithcsv/company_embeddings.npy',
+    'embeddingwithcsv/faiss_index.index',
+    'embeddingwithcsv/university_embeddings.npy',
+    'embeddingwithcsv/faiss_index_for_uni.index'
 )
 
 def format_search_results_for_gpt(companies, universities):
