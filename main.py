@@ -63,7 +63,7 @@ def search_and_rank_items(json_data):
 
 def generate_gpt_verification_request(formatted_data):
     prompt = (
-        f"""Given the Data below, identify if each company and university exists in the Data. 
+        f"""Given the Data below, identify if each company and university exists in the Data.   
         If it does, return its rank. If it doesn't, return null. Below is the example of JSON format that you need to provide:
         {{
             "Companies worked at": [
@@ -75,6 +75,7 @@ def generate_gpt_verification_request(formatted_data):
         }}
         
         Be noted that the Data below is the result of semantic search regarding to companies and universities, so the you have to find the company and university of the value of "name" from the value of "result".
+        Company and university names may be expressed slightly differently in the search results, so be careful.
         Provide the response in JSON format.\n\n
         Data: {formatted_data}"""
     )
