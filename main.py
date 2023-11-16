@@ -350,6 +350,9 @@ st.set_page_config(page_title="CView")
 # Streamlit 시크릿을 사용하여 OpenAI API 키 가져오기
 openai_api_key = st.secrets["add_openai_api"]
 
+# OpenAI API 키 설정
+openai.api_key = openai_api_key
+
 st.title("CView: Resume Scorer")
 
 job_title_input = st.text_input("**Enter the job title you are applying for (only in en):**", key="job_title")
