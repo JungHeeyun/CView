@@ -8,6 +8,8 @@ from sentence_transformers import SentenceTransformer
 import language_tool_python
 from similarity_searcher import SimilaritySearcher
 import matplotlib.pyplot as plt
+import fitz
+import os
 
 # SimilaritySearcher 인스턴스 생성
 searcher = SimilaritySearcher(
@@ -345,8 +347,8 @@ def extract_text_from_pdf(pdf_file):
 
 # Streamlit 앱 구성
 st.set_page_config(page_title="CView")
-add_openai_api = "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"  # Replace with your actual OpenAI API key
-openai.api_key = add_openai_api
+# Streamlit 시크릿을 사용하여 OpenAI API 키 가져오기
+openai_api_key = st.secrets["add_openai_api"]
 
 st.title("CView: Resume Scorer")
 
