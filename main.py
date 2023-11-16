@@ -104,14 +104,14 @@ def parse_gpt_verification_response(response):
 
 # Function to generate a response from the OpenAI GPT model
 def generate_gpt_response(resume_input):
-    prompt = f"""User's input resume: \n{resume_input}\n\n 
+    prompt = f"""The following is user's input resume: \n[{resume_input}]\n\n 
     Extract information from the resume above and fill in the values in the JSON format below. Things to consider when filling in empty values are:
     1. Do not change key names in json format.
     2. Companies worked at and University name values are always strings
     3. Multiple values may exist in list format.
     4. Degree values must in range of “B”(for bachelor’s degree), “M”(for master’s degree), “D”(for doctoral degree), and nothing if there is no information about it.
     5. Work duration values are always based on years and should be expressed as a signgle float number which means you have to sum up all the work durations.
-    6. If there is no value, leave the column empty.
+    6. If there is no specific useful value in above input resume "[]", leave the json column empty.
 
     You have to only output the following JSON format after filling it:
     {{"Companies worked at": [],
