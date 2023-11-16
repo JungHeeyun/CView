@@ -387,6 +387,7 @@ uploaded_file = st.file_uploader("Upload your resume (PDF only)", type="pdf")
 if uploaded_file is not None:
     resume_text = extract_text_from_pdf(uploaded_file)
 
+st.write(uploaded_file)
 # 레쥬메 분석 버튼
 if st.button('Get the Resume Score'):
     if uploaded_file and job_title_input:
