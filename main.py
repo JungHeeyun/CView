@@ -8,7 +8,6 @@ from sentence_transformers import SentenceTransformer
 import language_tool_python
 from similarity_searcher import SimilaritySearcher
 import matplotlib.pyplot as plt
-import fitz
 import os
 
 # SimilaritySearcher 인스턴스 생성
@@ -338,13 +337,6 @@ def calculate_final_score(grammar_score, company_score, resume_score):
     final_score = (grammar_score * 0.2) + (company_score * 0.4) + (resume_score * 0.4)
     return round(final_score, 2)  # 소수점 두 자리까지 반올림
 
-def extract_text_from_pdf(pdf_file):
-    doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    return text
-
 # Streamlit 앱 구성
 st.set_page_config(page_title="CView")
 # Streamlit 시크릿을 사용하여 OpenAI API 키 가져오기
@@ -382,22 +374,18 @@ if st.session_state.jd:
         st.info(st.session_state.jd)
 
 
-uploaded_file = st.file_uploader("Upload your resume (PDF only)", type="pdf")
+resume_input = st.text_area("**Input your resume here(only in en):**", height=300)
 
-if uploaded_file is not None:
-    resume_text = extract_text_from_pdf(uploaded_file)
-
-st.write(uploaded_file)
 # 레쥬메 분석 버튼
 if st.button('Get the Resume Score'):
-    if uploaded_file and job_title_input:
+    if resume_input and job_title_input:
         if st.session_state.jd is None:
             st.session_state.jd = generate_job_description(job_title_input)
 
         jd = extract_jd_from_json(st.session_state.jd)
 
         with st.spinner("Getting the score of the resume..."):
-            gpt_response = generate_gpt_response(uploaded_file)
+            gpt_response = generate_gpt_response(resume_input)
             json_data = extract_json_from_response(gpt_response)
 
             st.markdown("**Extracted JSON from Resume:**")
@@ -409,10 +397,10 @@ if st.button('Get the Resume Score'):
             st.write(updated_json_ranks_only)
             company_score_from_json = calculate_score_from_json(updated_json_ranks_only)
 
-            resume_score = calculate_resume_score(uploaded_file, jd)
+            resume_score = calculate_resume_score(resume_input, jd)
 
             # 문법 및 철자 검사
-            grammar_errors = check_grammar_and_spelling(uploaded_file)
+            grammar_errors = check_grammar_and_spelling(resume_input)
             grammar_score = calculate_grammar_score(grammar_errors)
             
             # 최종 점수 계산 및 결과 표시
