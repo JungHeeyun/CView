@@ -8,14 +8,16 @@ from sentence_transformers import SentenceTransformer
 import language_tool_python
 from similarity_searcher import SimilaritySearcher
 import matplotlib.pyplot as plt
-import os
+from llmsherpa.readers import LayoutPDFReader
+import os 
+import tempfile
 
 # SimilaritySearcher 인스턴스 생성
 searcher = SimilaritySearcher(
-    'embeddingwithcsv/company_embeddings.npy',
-    'embeddingwithcsv/faiss_index.index',
-    'embeddingwithcsv/university_embeddings.npy',
-    'embeddingwithcsv/faiss_index_for_uni.index'
+    '/Users/jeonghuiyun/PycharmProjects/pythonProject2/Resume/embeddingwithcsv/company_embeddings.npy',
+    '/Users/jeonghuiyun/PycharmProjects/pythonProject2/Resume/embeddingwithcsv/faiss_index.index',
+    '/Users/jeonghuiyun/PycharmProjects/pythonProject2/Resume/embeddingwithcsv/university_embeddings.npy',
+    '/Users/jeonghuiyun/PycharmProjects/pythonProject2/Resume/embeddingwithcsv/faiss_index_for_uni.index'
 )
 
 def format_search_results_for_gpt(companies, universities):
@@ -63,7 +65,7 @@ def search_and_rank_items(json_data):
 
 def generate_gpt_verification_request(formatted_data):
     prompt = (
-        f"""Given the Data below, identify if each company and university exists in the Data.   
+        f"""Given the Data below, identify if each company and university exists in the Data. 
         If it does, return its rank. If it doesn't, return null. Below is the example of JSON format that you need to provide:
         {{
             "Companies worked at": [
@@ -75,7 +77,6 @@ def generate_gpt_verification_request(formatted_data):
         }}
         
         Be noted that the Data below is the result of semantic search regarding to companies and universities, so the you have to find the company and university of the value of "name" from the value of "result".
-        Company and university names may be expressed slightly differently in the search results, so be careful.
         Provide the response in JSON format.\n\n
         Data: {formatted_data}"""
     )
@@ -340,11 +341,8 @@ def calculate_final_score(grammar_score, company_score, resume_score):
 
 # Streamlit 앱 구성
 st.set_page_config(page_title="CView")
-# Streamlit 시크릿을 사용하여 OpenAI API 키 가져오기
-openai_api_key = st.secrets["add_openai_api"]
-
-# OpenAI API 키 설정
-openai.api_key = openai_api_key
+add_openai_api = "your_api_key"  # Replace with your actual OpenAI API key
+openai.api_key = add_openai_api
 
 st.title("CView: Resume Scorer")
 
@@ -374,8 +372,31 @@ if st.session_state.jd:
     with st.expander("View Generated Job Description"):
         st.info(st.session_state.jd)
 
+#레쥬메 유저인풋, 2가지 방법.
+option = st.radio("Input your resume by:", ("Text", "Upload PDF"))
 
-resume_input = st.text_area("**Input your resume here(only in en):**", height=300)
+if option == "Text":
+    resume_input = st.text_area("**Input your resume here (only in English):**", height=300)
+elif option == "Upload PDF":
+    uploaded_file = st.file_uploader("Choose your resume PDF file", type=['pdf'])
+    if uploaded_file is not None:
+        # Save the uploaded file to a temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
+            tmp_file.write(uploaded_file.getvalue())
+            temp_pdf_path = tmp_file.name
+        
+        # Now that we have a path, use it with LayoutPDFReader
+        llmsherpa_api_url = "https://readers.llmsherpa.com/api/document/developer/parseDocument?renderFormat=all"
+        pdf_reader = LayoutPDFReader(llmsherpa_api_url)
+        
+        # Assuming read_pdf can take a file path
+        doc = pdf_reader.read_pdf(temp_pdf_path)
+        
+        # Assuming there's a to_text or similar method to extract text
+        resume_input = doc.to_text()
+        
+        # Clean up the temporary file
+        os.unlink(temp_pdf_path)
 
 # 레쥬메 분석 버튼
 if st.button('Get the Resume Score'):
